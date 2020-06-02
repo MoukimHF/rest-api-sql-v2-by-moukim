@@ -29,14 +29,11 @@ const authenticateUser = asyncHandler(async(req, res, next) => {
       attributes: { exclude: ['createdAt','updatedAt'] }
 
     });
-    console.log(utilisateurs)
     // Get the user's credentials from the Authorization header.
     const credentials = auth(req);
-    console.log(colors.yellow(auth(req)))
     if (credentials) {
       // Look for a user whose `username` matches the credentials `name` property.
       const user = utilisateurs.find(u => u.emailAddress === credentials.name);
-        console.log(colors.green(user))
        
       if (user) {
         const authenticated = bcryptjs
@@ -89,7 +86,7 @@ router.get('/users',authenticateUser, asyncHandler(async (req, res,next) => {
           .withMessage('Please provide a value for "password"'),
            check('password')
           .exists({ checkNull: true, checkFalsy: true })
-          
+
           .withMessage('Please provide a value for "password"'),
       ], asyncHandler(async (req,res,next)=>{
         // Attempt to get the validation result from the Request object.
@@ -105,17 +102,8 @@ router.get('/users',authenticateUser, asyncHandler(async (req, res,next) => {
         }
   // Get the user from the request body.
   const user = req.body;
-  console.log('2')
-console.log(user)
-console.log('3')
   // Hash the new user's password.
   user.password = bcryptjs.hashSync(user.password);
-console.log(colors.zebra(user.password))
-  // Add the user to the `users` array.
-
-
-
-
     const newUser =User.build({ firstName: req.body.firstName,
         lastName: req.body.lastName,
         emailAddress: req.body.emailAddress,
@@ -161,7 +149,6 @@ console.log(colors.zebra(user.password))
         }
        });
     
-       console.log(course)
            
       
       if(course!=null){
@@ -236,7 +223,9 @@ console.log(colors.zebra(user.password))
   }
  let authorised =  record.userId==req.currentUser.id;
 if(authorised==false){
+  res.status(403)
   throw new Error('user is not permited to modify this course ')
+  
 }
   console.log(`retrieved Course ${JSON.stringify(record,null,2)}`) 
 
@@ -275,6 +264,7 @@ router.delete('/courses/:id',authenticateUser,asyncHandler(async (req,res,next)=
      }
      let authorised =  record.userId==req.currentUser.id;
      if(authorised==false){
+      res.status(403)
        throw new Error('user is not permited to delete this course ')
      }
      console.log(`retrieved Course ${JSON.stringify(record,null,2)}`) 
