@@ -1,5 +1,6 @@
 {
   "development": {
+    "transactionType": "IMMEDIATE",
     "storage":"fsjstd-restapi.db",
     "dialect": "sqlite",
     "operatorsAliases": false

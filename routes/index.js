@@ -23,19 +23,18 @@ router.get('/',(req,res,next)=>{
     })
 })
 
-const users = [];
-
-const authenticateUser = (req, res, next) => {
+const authenticateUser = asyncHandler(async(req, res, next) => {
     let message = null;
-  
+    const utilisateurs = await User.findAll({});
+    console.log(utilisateurs)
     // Get the user's credentials from the Authorization header.
     const credentials = auth(req);
     console.log(colors.yellow(auth(req)))
     if (credentials) {
       // Look for a user whose `username` matches the credentials `name` property.
-      const user = users.find(u => u.emailAddress === credentials.name);
+      const user = utilisateurs.find(u => u.emailAddress === credentials.name);
         console.log(colors.green(user))
-        console.log(colors.red(users));
+       
       if (user) {
         const authenticated = bcryptjs
           .compareSync(credentials.pass, user.password);
@@ -60,11 +59,10 @@ const authenticateUser = (req, res, next) => {
     } else {
       next();
     }
-  };
+  });
  
 router.get('/users',authenticateUser, asyncHandler(async (req, res,next) => {
     const user = req.currentUser;
-    console.log(colors.red(user))
     res.json({
        firstName:user.firstName,
        lastName:user.lastName,
@@ -110,7 +108,7 @@ console.log('3')
 console.log(colors.zebra(user.password))
   // Add the user to the `users` array.
 
-  console.log(colors.red(users));
+
 
 
     const newUser =User.build({ firstName: req.body.firstName,
@@ -118,7 +116,6 @@ console.log(colors.zebra(user.password))
         emailAddress: req.body.emailAddress,
         password: user.password,
     });
-    users.push(newUser);
     
     await newUser.save();
     res.location = '/';
@@ -130,13 +127,23 @@ console.log(colors.zebra(user.password))
 
 
   router.get('/courses',asyncHandler(async (req,res,next)=>{
-    const courses =  await Course.findAll({
-       
+    // const courses =  await Course.findAll({});
+    const courses = await Course.findAll({
+        include: [
+          {
+            model: User,
+           
+          }
+        ]
       })
+    
     res.json({
-     courses
+     courses,
+     
       });
-      return res.status(200).end();
+       res.status(200).end();
+
+
   }));
   
   router.get('/courses/:id',asyncHandler(async (req,res,next)=>{
