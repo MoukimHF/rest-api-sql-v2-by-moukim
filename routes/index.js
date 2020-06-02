@@ -25,7 +25,10 @@ router.get('/',(req,res,next)=>{
 
 const authenticateUser = asyncHandler(async(req, res, next) => {
     let message = null;
-    const utilisateurs = await User.findAll({});
+    const utilisateurs = await User.findAll({
+      attributes: { exclude: ['createdAt','updatedAt'] }
+
+    });
     console.log(utilisateurs)
     // Get the user's credentials from the Authorization header.
     const credentials = auth(req);
@@ -67,12 +70,13 @@ router.get('/users',authenticateUser, asyncHandler(async (req, res,next) => {
        firstName:user.firstName,
        lastName:user.lastName,
        emailAddress:user.emailAddress,
-       password:user.password
+      
         
       });
       return res.status(200).end();
 
   }));
+
     router.post('/users', [
         check('firstName')
           .exists({ checkNull: true, checkFalsy: true })
@@ -85,6 +89,7 @@ router.get('/users',authenticateUser, asyncHandler(async (req, res,next) => {
           .withMessage('Please provide a value for "password"'),
            check('password')
           .exists({ checkNull: true, checkFalsy: true })
+          
           .withMessage('Please provide a value for "password"'),
       ], asyncHandler(async (req,res,next)=>{
         // Attempt to get the validation result from the Request object.
@@ -129,10 +134,12 @@ console.log(colors.zebra(user.password))
   router.get('/courses',asyncHandler(async (req,res,next)=>{
     // const courses =  await Course.findAll({});
     const courses = await Course.findAll({
+      attributes: { exclude: ['createdAt','updatedAt'] },
         include: [
           {
             model: User,
-           
+            
+            attributes: { exclude: ['password','createdAt','updatedAt'] }
           }
         ]
       })
@@ -148,6 +155,7 @@ console.log(colors.zebra(user.password))
   
   router.get('/courses/:id',asyncHandler(async (req,res,next)=>{
     const course =  await Course.findOne({
+      attributes: { exclude: ['createdAt','updatedAt'] },
         where:{
             id:req.params.id
         }
@@ -158,6 +166,8 @@ console.log(colors.zebra(user.password))
       
       if(course!=null){
         const owner = await User.findOne({
+          attributes: { exclude: ['createdAt','updatedAt','password'] },
+
             where:{
                 id:course.dataValues.userId
             }
@@ -207,6 +217,7 @@ console.log(colors.zebra(user.password))
   }));
  
   router.put('/courses/:id',authenticateUser,checkCourse,asyncHandler(async (req,res,next)=>{
+    console.log(colors.red(req.currentUser))
  
     const errors = validationResult(req);
 
@@ -223,7 +234,10 @@ console.log(colors.zebra(user.password))
   if (!record) {
     throw new Error('No Course found')
   }
-
+ let authorised =  record.userId==req.currentUser.id;
+if(authorised==false){
+  throw new Error('user is not permited to modify this course ')
+}
   console.log(`retrieved Course ${JSON.stringify(record,null,2)}`) 
 
   let values = {
@@ -259,7 +273,10 @@ router.delete('/courses/:id',authenticateUser,asyncHandler(async (req,res,next)=
      if (!record) {
        throw new Error('No Course found')
      }
-   
+     let authorised =  record.userId==req.currentUser.id;
+     if(authorised==false){
+       throw new Error('user is not permited to delete this course ')
+     }
      console.log(`retrieved Course ${JSON.stringify(record,null,2)}`) 
    
      

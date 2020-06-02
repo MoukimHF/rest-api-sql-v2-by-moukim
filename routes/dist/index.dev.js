@@ -61,7 +61,11 @@ var authenticateUser = asyncHandler(function _callee2(req, res, next) {
         case 0:
           message = null;
           _context2.next = 3;
-          return regeneratorRuntime.awrap(User.findAll({}));
+          return regeneratorRuntime.awrap(User.findAll({
+            attributes: {
+              exclude: ['createdAt', 'updatedAt']
+            }
+          }));
 
         case 3:
           utilisateurs = _context2.sent;
@@ -120,8 +124,7 @@ router.get('/users', authenticateUser, asyncHandler(function _callee3(req, res, 
           res.json({
             firstName: user.firstName,
             lastName: user.lastName,
-            emailAddress: user.emailAddress,
-            password: user.password
+            emailAddress: user.emailAddress
           });
           return _context3.abrupt("return", res.status(200).end());
 
@@ -206,8 +209,14 @@ router.get('/courses', asyncHandler(function _callee5(req, res, next) {
         case 0:
           _context5.next = 2;
           return regeneratorRuntime.awrap(Course.findAll({
+            attributes: {
+              exclude: ['createdAt', 'updatedAt']
+            },
             include: [{
-              model: User
+              model: User,
+              attributes: {
+                exclude: ['password', 'createdAt', 'updatedAt']
+              }
             }]
           }));
 
@@ -233,6 +242,9 @@ router.get('/courses/:id', asyncHandler(function _callee6(req, res, next) {
         case 0:
           _context6.next = 2;
           return regeneratorRuntime.awrap(Course.findOne({
+            attributes: {
+              exclude: ['createdAt', 'updatedAt']
+            },
             where: {
               id: req.params.id
             }
@@ -249,6 +261,9 @@ router.get('/courses/:id', asyncHandler(function _callee6(req, res, next) {
 
           _context6.next = 7;
           return regeneratorRuntime.awrap(User.findOne({
+            attributes: {
+              exclude: ['createdAt', 'updatedAt', 'password']
+            },
             where: {
               id: course.dataValues.userId
             }
@@ -331,10 +346,11 @@ router.put('/courses/:id', authenticateUser, checkCourse, asyncHandler(function 
     while (1) {
       switch (_context8.prev = _context8.next) {
         case 0:
+          console.log(colors.red(req.currentUser));
           errors = validationResult(req);
 
           if (errors.isEmpty()) {
-            _context8.next = 4;
+            _context8.next = 5;
             break;
           }
 
@@ -345,8 +361,8 @@ router.put('/courses/:id', authenticateUser, checkCourse, asyncHandler(function 
             errors: errorMessages
           }));
 
-        case 4:
-          _context8.next = 6;
+        case 5:
+          _context8.next = 7;
           return regeneratorRuntime.awrap(Course.findOne({
             where: {
               id: req.params.id
@@ -354,6 +370,12 @@ router.put('/courses/:id', authenticateUser, checkCourse, asyncHandler(function 
           }).then(function (record) {
             if (!record) {
               throw new Error('No Course found');
+            }
+
+            var authorised = record.userId == req.currentUser.id;
+
+            if (authorised == false) {
+              throw new Error('user is not permited to modify this course ');
             }
 
             console.log("retrieved Course ".concat(JSON.stringify(record, null, 2)));
@@ -374,10 +396,10 @@ router.put('/courses/:id', authenticateUser, checkCourse, asyncHandler(function 
             });
           }));
 
-        case 6:
+        case 7:
           return _context8.abrupt("return", res.status(204).end());
 
-        case 7:
+        case 8:
         case "end":
           return _context8.stop();
       }
@@ -397,6 +419,12 @@ router["delete"]('/courses/:id', authenticateUser, asyncHandler(function _callee
           }).then(function (record) {
             if (!record) {
               throw new Error('No Course found');
+            }
+
+            var authorised = record.userId == req.currentUser.id;
+
+            if (authorised == false) {
+              throw new Error('user is not permited to delete this course ');
             }
 
             console.log("retrieved Course ".concat(JSON.stringify(record, null, 2)));

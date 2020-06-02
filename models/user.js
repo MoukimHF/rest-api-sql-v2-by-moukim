@@ -6,7 +6,14 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true},
     firstName: DataTypes.STRING,
     lastName: DataTypes.STRING,
-    emailAddress: DataTypes.STRING,
+    emailAddress:{
+      type    : DataTypes.STRING,
+      isUnique :true,
+      allowNull:false,
+      validate:{
+          isEmail : true
+      }
+  },
     password: DataTypes.STRING
   }, {});
   User.associate = function(models) {

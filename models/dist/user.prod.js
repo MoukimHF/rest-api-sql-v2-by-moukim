@@ -1,1 +1,1 @@
-"use strict";module.exports=function(e,s){var r=e.define("User",{id:{type:s.INTEGER,primaryKey:!0,autoIncrement:!0},firstName:s.STRING,lastName:s.STRING,emailAddress:s.STRING,password:s.STRING},{});return r.associate=function(e){r.hasMany(e.Course)},r};
+"use strict";module.exports=function(e,a){var s=e.define("User",{id:{type:a.INTEGER,primaryKey:!0,autoIncrement:!0},firstName:a.STRING,lastName:a.STRING,emailAddress:{type:a.STRING,isUnique:!0,allowNull:!1,validate:{isEmail:!0}},password:a.STRING},{});return s.associate=function(e){s.hasMany(e.Course)},s};
