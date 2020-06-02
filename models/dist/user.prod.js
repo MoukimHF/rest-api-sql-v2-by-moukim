@@ -1,0 +1,1 @@
+"use strict";module.exports=function(e,s){var r=e.define("User",{id:{type:s.INTEGER,primaryKey:!0,autoIncrement:!0},firstName:s.STRING,lastName:s.STRING,emailAddress:s.STRING,password:s.STRING},{});return r.associate=function(e){r.hasMany(e.Course)},r};

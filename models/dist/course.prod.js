@@ -1,0 +1,1 @@
+"use strict";module.exports=function(e,t){var i=e.define("Course",{id:{type:t.INTEGER,primaryKey:!0,autoIncrement:!0},title:t.STRING,description:t.TEXT,estimatedTime:t.STRING,materialsNeeded:t.STRING,userId:t.INTEGER},{});return i.associate=function(e){i.belongsTo(e.User)},i};
