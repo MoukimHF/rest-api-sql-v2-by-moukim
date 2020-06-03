@@ -11,10 +11,14 @@ module.exports = function (sequelize, DataTypes) {
     lastName: DataTypes.STRING,
     emailAddress: {
       type: DataTypes.STRING,
-      isUnique: true,
+      isUnique: {
+        msg: 'this email is taken. Please choose another one'
+      },
       allowNull: false,
       validate: {
-        isEmail: true
+        isEmail: {
+          msg: "it's not an email bro"
+        }
       }
     },
     password: DataTypes.STRING

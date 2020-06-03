@@ -145,16 +145,17 @@ router.post('/users', [check('firstName').exists({
   checkNull: true,
   checkFalsy: true
 }).withMessage('Please provide a value for "password"')], asyncHandler(function _callee4(req, res, next) {
-  var errors, errorMessages, user, newUser;
+  var errors, errorMessages, user, newUser, messages;
   return regeneratorRuntime.async(function _callee4$(_context4) {
     while (1) {
       switch (_context4.prev = _context4.next) {
         case 0:
+          _context4.prev = 0;
           // Attempt to get the validation result from the Request object.
           errors = validationResult(req); // If there are validation errors...
 
           if (errors.isEmpty()) {
-            _context4.next = 4;
+            _context4.next = 5;
             break;
           }
 
@@ -167,7 +168,7 @@ router.post('/users', [check('firstName').exists({
             errors: errorMessages
           }));
 
-        case 4:
+        case 5:
           // Get the user from the request body.
           user = req.body; // Hash the new user's password.
 
@@ -178,20 +179,53 @@ router.post('/users', [check('firstName').exists({
             emailAddress: req.body.emailAddress,
             password: user.password
           });
-          _context4.next = 9;
+          _context4.next = 10;
           return regeneratorRuntime.awrap(newUser.save());
 
-        case 9:
-          res.location = '/';
+        case 10:
+          res.location('/');
           console.log(res.location);
-          return _context4.abrupt("return", res.status(201).end());
+          res.status(201).end();
+          _context4.next = 21;
+          break;
 
-        case 12:
+        case 15:
+          _context4.prev = 15;
+          _context4.t0 = _context4["catch"](0);
+          messages = {};
+          console.log(_context4.t0.errors);
+
+          _context4.t0.errors.forEach(function (error) {
+            var message;
+
+            switch (error.validatorKey) {
+              case 'isEmail':
+                message = 'Please enter a valid email';
+                break;
+
+              case 'is_null':
+                message = 'Please complete this field';
+                break;
+
+              case 'not_unique':
+                message = error.value + ' is taken. Please choose another one';
+                error.path = error.path.replace("_UNIQUE", "");
+            }
+
+            console.log(error.path);
+            messages[error.path] = message;
+          });
+
+          res.status(400).json({
+            message: messages
+          });
+
+        case 21:
         case "end":
           return _context4.stop();
       }
     }
-  });
+  }, null, null, [[0, 15]]);
 }));
 router.get('/courses', asyncHandler(function _callee5(req, res, next) {
   var courses;
@@ -320,7 +354,7 @@ router.post('/courses', authenticateUser, checkCourse, asyncHandler(function _ca
           return regeneratorRuntime.awrap(course.save());
 
         case 7:
-          res.location = "/courses/".concat(course.id);
+          res.location("/courses/".concat(course.id));
           console.log(res.location);
           return _context7.abrupt("return", res.status(201).end());
 

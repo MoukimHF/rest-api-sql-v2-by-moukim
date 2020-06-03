@@ -7,11 +7,26 @@ module.exports = function (sequelize, DataTypes) {
       primaryKey: true,
       autoIncrement: true
     },
-    title: DataTypes.STRING,
-    description: DataTypes.TEXT,
-    estimatedTime: DataTypes.STRING,
-    materialsNeeded: DataTypes.STRING,
-    userId: DataTypes.INTEGER
+    title: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    description: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    estimatedTime: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    materialsNeeded: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    userId: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    }
   }, {});
 
   Course.associate = function (models) {

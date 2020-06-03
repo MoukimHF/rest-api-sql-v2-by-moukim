@@ -89,6 +89,7 @@ router.get('/users',authenticateUser, asyncHandler(async (req, res,next) => {
 
           .withMessage('Please provide a value for "password"'),
       ], asyncHandler(async (req,res,next)=>{
+        try{
         // Attempt to get the validation result from the Request object.
         const errors = validationResult(req);
       
@@ -111,11 +112,32 @@ router.get('/users',authenticateUser, asyncHandler(async (req, res,next) => {
     });
     
     await newUser.save();
-    res.location = '/';
+    res.location('/')
     console.log(res.location)
 
-    return res.status(201).end();
-
+     res.status(201).end();
+    }catch(e) {
+      const messages = {};
+     console.log(e.errors)
+          e.errors.forEach((error) => {
+              let message;
+              switch (error.validatorKey) {
+                  case 'isEmail':
+                      message = 'Please enter a valid email';
+                      break;
+                  case 'is_null':
+                      message = 'Please complete this field';
+                      break;
+                  case 'not_unique':
+                      message = error.value + ' is taken. Please choose another one';
+                      error.path = error.path.replace("_UNIQUE", "");
+              }
+              console.log(error.path)
+              messages[error.path] = message;
+          });
+          res.status(400).json({message:messages})
+      }
+  
   }));
 
 
@@ -197,7 +219,7 @@ router.get('/users',authenticateUser, asyncHandler(async (req, res,next) => {
         userId:req.body.userId
     });
     await course.save();
-    res.location = `/courses/${course.id}`;
+    res.location(`/courses/${course.id}`);
     console.log(res.location)
     return res.status(201).end();
 
